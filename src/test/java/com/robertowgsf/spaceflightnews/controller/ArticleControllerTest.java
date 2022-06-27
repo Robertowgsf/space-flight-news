@@ -5,9 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.robertowgsf.spaceflightnews.config.EasyRandomConfig;
 import com.robertowgsf.spaceflightnews.model.Article;
 import com.robertowgsf.spaceflightnews.repository.ArticleRepository;
-import jdk.jshell.spi.ExecutionControl;
 import org.jeasy.random.EasyRandom;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -15,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.io.IOException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -22,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureMockMvc
@@ -38,6 +38,16 @@ public class ArticleControllerTest {
     @Autowired
     private ArticleRepository articleRepository;
 
+    @BeforeEach
+    void beforeEach() throws IOException {
+        List<Article> articles = mapper.readValue(
+                getClass().getClassLoader().getResourceAsStream("data-mock/articles.json"),
+                new TypeReference<>() {
+                });
+
+        articleRepository.saveAll(articles);
+    }
+
     @AfterEach
     void afterEach() {
         articleRepository.deleteAll();
@@ -45,11 +55,6 @@ public class ArticleControllerTest {
 
     @Test
     void shouldGetArticlesWithDefaultPagination() throws Exception {
-        // TODO: Sort by id?
-        List<Article> articles = easyRandom.objects(Article.class, 30).toList();
-        articleRepository.saveAll(articles);
-
-        // TODO: Return sorted list
         mockMvc.perform(get("/articles"))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -60,15 +65,12 @@ public class ArticleControllerTest {
 
                     // test if nested lists are equal as well. if not try to use usingRecursiveFieldByFieldElementComparator
                     assertEquals(20, responseArticles.size());
-//                    assertThat(responseArticles).usingRecursiveComparison().isEqualTo(articles);
+                    //                    assertThat(responseArticles).usingRecursiveComparison().isEqualTo(articles);
                 });
     }
 
     @Test
     void shouldGetArticlesWithCustomPagination() throws Exception {
-        List<Article> articles = easyRandom.objects(Article.class, 15).toList();
-        articleRepository.saveAll(articles);
-
         mockMvc.perform(get("/articles?page=1&size=5"))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -78,7 +80,7 @@ public class ArticleControllerTest {
                             });
 
                     assertEquals(5, responseArticles.size());
-//                    assertThat(responseArticles).usingRecursiveComparison().isEqualTo(articles);
+                    //                    assertThat(responseArticles).usingRecursiveComparison().isEqualTo(articles);
                 });
     }
 
@@ -110,7 +112,7 @@ public class ArticleControllerTest {
         Article article = easyRandom.nextObject(Article.class);
 
         mockMvc.perform(post("/articles")
-//                        .contentType(APPLICATION_JSON)
+                        //                        .contentType(APPLICATION_JSON)
                         .content(mapper.writeValueAsString(article)))
                 .andDo(print())
                 .andExpect(status().isCreated())
