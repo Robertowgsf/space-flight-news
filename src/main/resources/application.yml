@@ -1,3 +1,8 @@
-aws:
-  profile-name: default
-  region: us-east-1
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/space_flight_news
+    username: postgres
+    password: postgres
+#  jpa:
+#    hibernate:
+#      ddl-auto: update

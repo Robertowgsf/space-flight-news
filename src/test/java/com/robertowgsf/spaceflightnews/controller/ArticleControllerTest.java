@@ -16,8 +16,10 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -37,10 +39,11 @@ public class ArticleControllerTest {
     private EasyRandom easyRandom;
     @Autowired
     private ArticleRepository articleRepository;
+    private List<Article> articles;
 
     @BeforeEach
     void beforeEach() throws IOException {
-        List<Article> articles = mapper.readValue(
+        articles = mapper.readValue(
                 getClass().getClassLoader().getResourceAsStream("data-mock/articles.json"),
                 new TypeReference<>() {
                 });
@@ -59,13 +62,12 @@ public class ArticleControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andDo(result -> {
-                    List<Article> responseArticles = mapper.readValue(result.getResponse().getContentAsString(),
+                    List<Article> responseArticles = mapper.readValue(result.getResponse().getContentAsString(StandardCharsets.UTF_8),
                             new TypeReference<>() {
                             });
 
-                    // test if nested lists are equal as well. if not try to use usingRecursiveFieldByFieldElementComparator
                     assertEquals(20, responseArticles.size());
-                    //                    assertThat(responseArticles).usingRecursiveComparison().isEqualTo(articles);
+                    assertThat(responseArticles).usingRecursiveComparison().isEqualTo(articles.subList(0, 20));
                 });
     }
 
@@ -80,7 +82,7 @@ public class ArticleControllerTest {
                             });
 
                     assertEquals(5, responseArticles.size());
-                    //                    assertThat(responseArticles).usingRecursiveComparison().isEqualTo(articles);
+                    assertThat(responseArticles).usingRecursiveComparison().isEqualTo(articles.subList(5, 10));
                 });
     }
 
