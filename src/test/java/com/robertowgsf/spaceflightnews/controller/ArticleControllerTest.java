@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.robertowgsf.spaceflightnews.config.EasyRandomConfig;
 import com.robertowgsf.spaceflightnews.model.Article;
 import com.robertowgsf.spaceflightnews.repository.ArticleRepository;
-import org.jeasy.random.EasyRandom;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,13 +35,13 @@ public class ArticleControllerTest {
     @Autowired
     private ObjectMapper mapper;
     @Autowired
-    private EasyRandom easyRandom;
-    @Autowired
     private ArticleRepository articleRepository;
     private List<Article> articles;
 
     @BeforeEach
     void beforeEach() throws IOException {
+        articleRepository.deleteAll();
+
         articles = mapper.readValue(
                 getClass().getClassLoader().getResourceAsStream("data-mock/articles.json"),
                 new TypeReference<>() {
@@ -52,7 +51,7 @@ public class ArticleControllerTest {
     }
 
     @AfterEach
-    void afterEach() {
+    void afterAll() {
         articleRepository.deleteAll();
     }
 
@@ -62,7 +61,8 @@ public class ArticleControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andDo(result -> {
-                    List<Article> responseArticles = mapper.readValue(result.getResponse().getContentAsString(StandardCharsets.UTF_8),
+                    List<Article> responseArticles = mapper.readValue(
+                            result.getResponse().getContentAsString(StandardCharsets.UTF_8),
                             new TypeReference<>() {
                             });
 
@@ -88,7 +88,8 @@ public class ArticleControllerTest {
 
     @Test
     void shouldGetArticleById() throws Exception {
-        Article article = easyRandom.nextObject(Article.class);
+        Article article = new Article(0, true, "title", "url", "image", "news", "summary", "publishedAt",
+                null, null);
         articleRepository.save(article);
 
         mockMvc.perform(get("/articles/" + article.getId()))
@@ -102,7 +103,7 @@ public class ArticleControllerTest {
 
     @Test
     void shouldThrowNotFoundExceptionWhenArticleThatDoesNotExist() throws Exception {
-        mockMvc.perform(get("/articles/1"))
+        mockMvc.perform(get("/articles/9999"))
                 .andDo(print())
                 .andExpect(status().isNotFound())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof RuntimeException))
@@ -111,7 +112,7 @@ public class ArticleControllerTest {
 
     @Test
     void shouldAddArticle() throws Exception {
-        Article article = easyRandom.nextObject(Article.class);
+        Article article = articles.get(0);
 
         mockMvc.perform(post("/articles")
                         //                        .contentType(APPLICATION_JSON)

@@ -9,8 +9,35 @@
     "publishedAt": "2018-10-05T22:00:00.000Z",
     "updatedAt": "2021-05-18T13:43:19.589Z",
     "featured": false,
-    "launches": [],
-    "events": []
+    "launches": [
+      {
+        "id": "launch-1",
+        "provider": "provider-1",
+        "articleId": 1
+      },
+      {
+        "id": "launch-2",
+        "provider": "provider-2",
+        "articleId": 1
+      },
+      {
+        "id": "launch-3",
+        "provider": "provider-3",
+        "articleId": 1
+      }
+    ],
+    "events": [
+      {
+        "id": "event-1",
+        "provider": "provider-1",
+        "articleId": 1
+      },
+      {
+        "id": "event-2",
+        "provider": "provider-2",
+        "articleId": 1
+      }
+    ]
   },
   {
     "id": 2,

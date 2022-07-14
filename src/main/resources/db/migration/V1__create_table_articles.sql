@@ -12,13 +12,13 @@ CREATE TABLE article (
 CREATE TABLE launch (
     id VARCHAR(255) PRIMARY KEY,
     provider VARCHAR(255) NOT NULL,
-    article_id INT NOT NULL,
+    article_id INT,
     CONSTRAINT fk_article FOREIGN KEY(article_id) REFERENCES article(id)
 );
 
 CREATE TABLE event (
     id VARCHAR(255) PRIMARY KEY,
     provider VARCHAR(255) NOT NULL,
-    article_id INT NOT NULL,
+    article_id INT,
     CONSTRAINT fk_article FOREIGN KEY(article_id) REFERENCES article(id)
 );
